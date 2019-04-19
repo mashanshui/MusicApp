@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:background="?android:attr/selectableItemBackground"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <ImageView
+        android:id="@+id/iv_cover"
+        android:layout_width="160dp"
+        android:layout_height="160dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/default_cover" />
+
+    <TextView
+        android:id="@+id/tv_introduction"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
+        android:maxLines="2"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/iv_cover"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="@+id/iv_cover"
+        app:layout_constraintTop_toBottomOf="@+id/iv_cover"
+        tools:text="介绍" />
+
+    <ImageView
+        android:id="@+id/imageView3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="@+id/tv_play_count"
+        app:layout_constraintEnd_toStartOf="@+id/tv_play_count"
+        app:layout_constraintTop_toTopOf="@+id/tv_play_count"
+        app:srcCompat="@drawable/ic_earphone" />
+
+    <TextView
+        android:id="@+id/tv_play_count"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:layout_marginEnd="4dp"
+        android:textColor="@color/white"
+        android:textSize="12sp"
+        app:layout_constraintEnd_toEndOf="@+id/iv_cover"
+        app:layout_constraintTop_toTopOf="@+id/iv_cover"
+        tools:text="10万" />
+
+    <ImageView
+        android:id="@+id/imageView4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginBottom="8dp"
+        app:layout_constraintBottom_toBottomOf="@+id/iv_cover"
+        app:layout_constraintStart_toStartOf="@+id/iv_cover"
+        app:srcCompat="@drawable/ic_white_user" />
+
+    <TextView
+        android:id="@+id/tv_creater_user"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/white"
+        android:textSize="12sp"
+        app:layout_constraintBottom_toBottomOf="@+id/imageView4"
+        app:layout_constraintStart_toEndOf="@+id/imageView4"
+        app:layout_constraintTop_toTopOf="@+id/imageView4"
+        tools:text="创建人" />
+
+    <ImageView
+        android:id="@+id/imageView2"
+        android:layout_width="0dp"
+        android:layout_height="30dp"
+        app:layout_constraintEnd_toEndOf="@+id/iv_cover"
+        app:layout_constraintStart_toStartOf="@+id/iv_cover"
+        app:layout_constraintTop_toTopOf="@+id/iv_cover"
+        app:srcCompat="@drawable/bg_gradient_image_up" />
+
+    <ImageView
+        android:id="@+id/imageView5"
+        android:layout_width="0dp"
+        android:layout_height="30dp"
+        app:layout_constraintBottom_toBottomOf="@+id/iv_cover"
+        app:layout_constraintEnd_toEndOf="@+id/iv_cover"
+        app:layout_constraintStart_toStartOf="@+id/iv_cover"
+        app:srcCompat="@drawable/bg_gradient_image_bottom" />
+
+</android.support.constraint.ConstraintLayout>

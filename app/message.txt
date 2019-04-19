@@ -1,0 +1,16 @@
+别名: mashanshui
+创建日期: 2018-11-1
+条目类型: PrivateKeyEntry
+证书链长度: 1
+证书[1]:
+所有者: CN=mashanshui, OU=personal, C=CN
+发布者: CN=mashanshui, OU=personal, C=CN
+序列号: 446838af
+有效期为 Thu Nov 01 15:27:02 CST 2018 至 Mon Oct 26 15:27:02 CST 2043
+证书指纹:
+         MD5:  66:05:4C:92:A5:88:F8:E7:A1:7E:1F:29:93:E4:B7:B7
+         SHA1: 16:D9:E1:3C:5F:2E:1F:0E:3A:D1:8F:A7:F0:92:6A:D8:09:BB:05:7C
+         SHA256: 49:ED:84:A3:E1:8B:04:24:AC:70:AE:E8:5E:8D:A3:9C:9B:88:4D:7F:89:58:E7:E2:0B:87:55:56:2E:A4:28:F1
+签名算法名称: SHA256withRSA
+主体公共密钥算法: 2048 位 RSA 密钥
+版本: 3

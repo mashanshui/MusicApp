@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.shanshui.musicapp">
+
+    <uses-permission android:name="android.permission.INTERNET" /> <!-- 需要申请 -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" /> <!-- 需要申请 -->
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" /> <!-- 用于进行网络定位  需要申请 -->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" /> <!-- 用于访问GPS定位 -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" /> <!-- 用于申请调用A-GPS模块 -->
+    <uses-permission android:name="android.permission.ACCESS_LOCATION_EXTRA_COMMANDS" /> <!-- 用于申请获取蓝牙信息进行室内定位 -->
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+
+    <application
+        android:name="com.jess.arms.base.BaseApplication"
+        android:allowBackup="true"
+        android:icon="@mipmap/app_icon"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/app_icon"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme"
+        tools:ignore="GoogleAppIndexingWarning">
+        <activity android:name=".mvp.ui.activity.music.SearchMusicActivity"></activity>
+        <activity android:name=".mvp.ui.activity.singer.SingerDetailActivity" />
+        <activity android:name=".mvp.ui.activity.songsheet.SongSheetDetailActivity" />
+
+        <meta-data
+            android:name="android.max_aspect"
+            android:value="2.4" />
+        <!-- arms配置 -->
+        <meta-data
+            android:name="com.shanshui.musicapp.app.GlobalConfiguration"
+            android:value="ConfigModule" />
+        <!-- 屏幕适配 今日头条方案 以宽为维度适配 -->
+        <meta-data
+            android:name="design_width_in_dp"
+            android:value="360" />
+        <!-- 高德地图 -->
+        <meta-data
+            android:name="com.amap.api.v2.apikey"
+            android:value="0fc9bcecdd9ab53b3ad93d626897edbe" />
+
+        <service android:name="com.amap.api.location.APSService" />
+
+        <activity
+            android:name=".mvp.ui.activity.SplashActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/SplashTheme"
+            android:windowSoftInputMode="stateHidden">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".mvp.ui.activity.MainActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".mvp.ui.activity.user.LoginActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".mvp.ui.activity.user.RegisterActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".mvp.ui.activity.user.ForgetPasswordActivity"
+            android:screenOrientation="portrait" />
+        <!-- 音乐播放服务 -->
+        <service
+            android:name=".mvp.music.MusicService"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.media.browse.MediaBrowserService" />
+            </intent-filter>
+        </service>
+
+        <activity
+            android:name=".mvp.ui.activity.music.FullScreenPlayerActivity"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".mvp.ui.activity.charts.ChartsDetailActivity"
+            android:screenOrientation="portrait" />
+    </application>
+
+</manifest>

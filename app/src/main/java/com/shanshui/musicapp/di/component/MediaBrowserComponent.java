@@ -1,0 +1,41 @@
+package com.shanshui.musicapp.di.component;
+
+import dagger.BindsInstance;
+import dagger.Component;
+
+import com.jess.arms.di.component.AppComponent;
+
+import com.shanshui.musicapp.di.module.MediaBrowserModule;
+import com.shanshui.musicapp.mvp.contract.MediaBrowserContract;
+
+import com.jess.arms.di.scope.FragmentScope;
+import com.shanshui.musicapp.mvp.ui.fragment.music.MediaBrowserFragment;
+
+
+/**
+ * ================================================
+ * Description:
+ * <p>
+ * Created by MVPArmsTemplate on 01/22/2019 22:14
+ * <a href="mailto:jess.yan.effort@gmail.com">Contact me</a>
+ * <a href="https://github.com/JessYanCoding">Follow me</a>
+ * <a href="https://github.com/JessYanCoding/MVPArms">Star me</a>
+ * <a href="https://github.com/JessYanCoding/MVPArms/wiki">See me</a>
+ * <a href="https://github.com/JessYanCoding/MVPArmsTemplate">模版请保持更新</a>
+ * ================================================
+ */
+@FragmentScope
+@Component(modules = MediaBrowserModule.class, dependencies = AppComponent.class)
+public interface MediaBrowserComponent {
+    void inject(MediaBrowserFragment fragment);
+
+    @Component.Builder
+    interface Builder {
+        @BindsInstance
+        MediaBrowserComponent.Builder view(MediaBrowserContract.View view);
+
+        MediaBrowserComponent.Builder appComponent(AppComponent appComponent);
+
+        MediaBrowserComponent build();
+    }
+}
