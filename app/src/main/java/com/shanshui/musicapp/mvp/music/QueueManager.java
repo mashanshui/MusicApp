@@ -5,6 +5,9 @@ import android.support.annotation.NonNull;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 
+import com.blankj.utilcode.util.SPUtils;
+import com.shanshui.musicapp.mvp.AppConstant;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -25,6 +28,7 @@ public class QueueManager {
     //当前播放队列
     private List<MediaSessionCompat.QueueItem> mPlayingQueue;
     private int mCurrentIndex;
+    private int mPlayMode = SPUtils.getInstance().getInt(AppConstant.ACTION_PLAY_MODE, AppConstant.PLAY_MODE_ORDER);
 
     /**
      * @param musicProvider 数据源提供者
@@ -69,12 +73,22 @@ public class QueueManager {
         return index >= 0;
     }
 
-    /**
-     * 设置播放队列为随机队列
-     */
-    public void setRandomQueue() {
-        setCurrentQueue("Random music",
-                QueueHelper.getRandomQueue(mMusicProvider));
+    public void setQueueSortMode(int sortMode) {
+        mPlayMode = sortMode;
+        switch (sortMode) {
+            case AppConstant.PLAY_MODE_RANDOM:
+                setCurrentQueue("Random music",
+                        QueueHelper.getRandomQueue(mMusicProvider));
+                break;
+            case AppConstant.PLAY_MODE_ORDER:
+                setCurrentQueue("Random music",
+                        QueueHelper.getOrderQueue(mMusicProvider));
+                break;
+            case AppConstant.PLAY_MODE_LOOP:
+                break;
+            default:
+                break;
+        }
         updateMetadata();
     }
 
@@ -154,6 +168,9 @@ public class QueueManager {
      * @return
      */
     public boolean skipQueuePosition(int amount) {
+        if (mPlayMode == AppConstant.PLAY_MODE_LOOP) {
+            return true;
+        }
         int index = mCurrentIndex + amount;
         if (index < 0) {
             // 如果索引值跳到了第一首歌的索引之前，则会从第一首歌开始播放

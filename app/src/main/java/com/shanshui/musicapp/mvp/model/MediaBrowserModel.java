@@ -15,6 +15,7 @@ import javax.inject.Inject;
 import com.shanshui.musicapp.mvp.contract.MediaBrowserContract;
 import com.shanshui.musicapp.mvp.model.api.service.UserService;
 import com.shanshui.musicapp.mvp.model.bean.MusicListBean;
+import com.shanshui.musicapp.mvp.model.bean.MusicSourceInfoBean;
 import com.shanshui.musicapp.mvp.model.entity.Response2;
 import com.shanshui.musicapp.mvp.model.entity.ResponseListObject;
 
@@ -68,5 +69,17 @@ public class MediaBrowserModel extends BaseModel implements MediaBrowserContract
     public Observable<Response2<ResponseListObject<MusicListBean>>> getSingerMusicList(String singerId, int page, int length) {
         return mRepositoryManager.obtainRetrofitService(UserService.class)
                 .getSingerDetail(singerId, page, length);
+    }
+
+    @Override
+    public Observable<Response2<ResponseListObject<MusicListBean>>> getSearchMusicList(String keyword, int page, int length) {
+        return mRepositoryManager.obtainRetrofitService(UserService.class)
+                .getSearchMusic(keyword, page, length);
+    }
+
+    @Override
+    public Observable<MusicSourceInfoBean> getMusicInfo(String source) {
+        return mRepositoryManager.obtainRetrofitService(UserService.class)
+                .getMusicInfo(source);
     }
 }

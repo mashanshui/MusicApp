@@ -5,7 +5,10 @@ package com.shanshui.musicapp.mvp;
  * @date 2018-11-08
  * @desc TODO
  */
-public class AppConstant {
+public final class AppConstant {
+    private AppConstant() {
+    }
+
     /**
      * 图片可用尺寸
      */
@@ -47,4 +50,30 @@ public class AppConstant {
      * 本地音乐
      */
     public static final int LOCAL_MUSIC = 1;
+
+    /**
+     * 保存搜索历史数据
+     */
+    public static final String PREF_USER_SEARCH_HISTORY = "PREF_USER_SEARCH_HISTORY";
+
+    /**
+     * 自定义行为——》播放模式
+     */
+    public static final String ACTION_PLAY_MODE = "ACTION_PLAY_MODE";
+
+    /**
+     * 播放模式——》顺序播放
+     */
+    public static final int PLAY_MODE_ORDER = 0;
+
+    /**
+     * 播放模式——》单曲循环
+     */
+    public static final int PLAY_MODE_LOOP = 1;
+
+    /**
+     * 播放模式——》随机播放
+     */
+    public static final int PLAY_MODE_RANDOM = 2;
+
 }

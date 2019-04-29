@@ -61,6 +61,17 @@ public class QueueHelper {
         return convertToQueue(result);
     }
 
+    public static List<MediaSessionCompat.QueueItem> getOrderQueue(MusicProvider musicProvider) {
+        List<MediaMetadataCompat> result = new ArrayList<>();
+        Iterable<MediaMetadataCompat> shuffled = musicProvider.getOrderMusicIterable();
+        for (MediaMetadataCompat metadata : shuffled) {
+            result.add(metadata);
+        }
+        LogHelper.d(TAG, "getRandomQueue: result.size=", result.size());
+
+        return convertToQueue(result);
+    }
+
 
     public static int getMusicIndexOnQueue(Iterable<MediaSessionCompat.QueueItem> queue,
                                            String mediaId) {

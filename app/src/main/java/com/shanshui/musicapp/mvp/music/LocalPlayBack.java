@@ -31,18 +31,13 @@ import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.util.Util;
 import com.jess.arms.base.BaseApplication;
-import com.jess.arms.integration.RepositoryManager;
-import com.jess.arms.integration.RepositoryManager_Factory;
 import com.shanshui.musicapp.app.utils.IToast;
-import com.shanshui.musicapp.app.utils.RxUtils;
 import com.shanshui.musicapp.mvp.AppConstant;
 import com.shanshui.musicapp.mvp.model.api.service.UserService;
 import com.shanshui.musicapp.mvp.model.bean.MusicSourceInfoBean;
-import com.shanshui.musicapp.mvp.model.bean.SingerBean;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
-import me.jessyan.rxerrorhandler.core.RxErrorHandler;
 import me.jessyan.rxerrorhandler.handler.ErrorHandleSubscriber;
 
 import static com.google.android.exoplayer2.C.CONTENT_TYPE_MUSIC;
@@ -120,7 +115,7 @@ public class LocalPlayBack implements Playback {
             if (TextUtils.equals(AppConstant.PROVIDE_LOCAL_MUSIC, MusicProvider.CURRENT_MUSIC_PROVIDE)) {
                 playMusicByLocal(source);
             } else {
-                playMusicByNetwork(source);
+                playMusicByNetwork(source, item.getDescription().getMediaId());
             }
         }
     }
@@ -147,7 +142,7 @@ public class LocalPlayBack implements Playback {
             if (TextUtils.equals(AppConstant.PROVIDE_LOCAL_MUSIC, MusicProvider.CURRENT_MUSIC_PROVIDE)) {
                 playMusicByLocal(source);
             } else {
-                playMusicByNetwork(source);
+                playMusicByNetwork(source, item.getDescription().getMediaId());
             }
         }
     }
@@ -160,7 +155,7 @@ public class LocalPlayBack implements Playback {
         configurePlayer(source);
     }
 
-    private void playMusicByNetwork(String source) {
+    private void playMusicByNetwork(String source, String mediaId) {
         BaseApplication application = (BaseApplication) Utils.getApp();
         application.getAppComponent().repositoryManager()
                 .obtainRetrofitService(UserService.class)
@@ -178,6 +173,9 @@ public class LocalPlayBack implements Playback {
                             }
                             return;
                         }
+//                        MediaMetadataCompat track = mMusicProvider.getMusic(mediaId);
+//                        mMusicProvider.setMusic(mediaId, new MediaMetadataCompat.Builder(track)
+//                                .putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_ICON_URI, musicSourceInfoBean.getImgUrl()).build());
                         configurePlayer(musicSourceInfoBean.getUrl());
                     }
                 });

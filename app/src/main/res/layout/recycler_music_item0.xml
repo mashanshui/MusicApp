@@ -3,53 +3,45 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:background="?android:attr/selectableItemBackground">
-
-    <ImageView
-        android:id="@+id/iv_cover"
-        android:layout_width="52dp"
-        android:layout_height="52dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/ic_singer_default" />
 
     <TextView
         android:id="@+id/tv_artist"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="6dp"
-        app:layout_constraintStart_toEndOf="@+id/iv_cover"
-        app:layout_constraintTop_toTopOf="@+id/iv_cover"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
+        android:maxLines="1"
+        android:textColor="@color/qmui_config_color_gray_5"
+        android:textSize="12sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/iv_download"
+        app:layout_constraintStart_toStartOf="@+id/tv_song_name"
+        app:layout_constraintTop_toBottomOf="@+id/tv_song_name"
         tools:text="歌手名" />
-
-    <TextView
-        android:id="@+id/textView2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text=" - "
-        app:layout_constraintBottom_toBottomOf="@+id/tv_artist"
-        app:layout_constraintStart_toEndOf="@+id/tv_artist"
-        app:layout_constraintTop_toTopOf="@+id/tv_artist" />
 
     <TextView
         android:id="@+id/tv_song_name"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
-        app:layout_constraintBottom_toBottomOf="@+id/textView2"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/textView2"
-        app:layout_constraintTop_toTopOf="@+id/textView2"
+        android:maxLines="1"
+        app:layout_constraintEnd_toStartOf="@+id/iv_download"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
         tools:text="歌曲名" />
 
-    <ImageView
+    <ImageButton
         android:id="@+id/iv_download"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        app:layout_constraintBottom_toBottomOf="@+id/iv_cover"
-        app:layout_constraintStart_toStartOf="@+id/tv_artist"
+        android:layout_width="30dp"
+        android:layout_height="0dp"
+        android:layout_marginEnd="8dp"
+        android:background="@color/transparent"
+        app:layout_constraintBottom_toBottomOf="@+id/tv_artist"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/tv_song_name"
         app:srcCompat="@drawable/ic_color_primary_download" />
 </android.support.constraint.ConstraintLayout>

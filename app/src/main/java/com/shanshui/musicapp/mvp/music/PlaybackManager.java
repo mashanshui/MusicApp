@@ -5,7 +5,14 @@ import android.os.Bundle;
 import android.os.SystemClock;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
+import android.text.TextUtils;
 import android.util.Log;
+
+import com.blankj.utilcode.util.AppUtils;
+import com.blankj.utilcode.util.SPUtils;
+import com.blankj.utilcode.util.Utils;
+import com.jess.arms.utils.DataHelper;
+import com.shanshui.musicapp.mvp.AppConstant;
 
 /**
  * @author mashanshui
@@ -20,6 +27,7 @@ public class PlaybackManager implements Playback.Callback {
     private PlaybackServiceCallback mServiceCallback;
     private QueueManager mQueueManager;
     private MusicProvider mMusicProvider;
+    private int mPlayMode = SPUtils.getInstance().getInt(AppConstant.ACTION_PLAY_MODE, AppConstant.PLAY_MODE_ORDER);
 
     public PlaybackManager(Playback mPlayback, PlaybackServiceCallback mServiceCallback, MusicProvider musicProvider, QueueManager queueManager) {
         this.mQueueManager = queueManager;
@@ -41,9 +49,9 @@ public class PlaybackManager implements Playback.Callback {
 
         @Override
         public void onPrepare() {
-            Log.e(TAG, "onPrepare: " );
+            Log.e(TAG, "onPrepare: ");
             if (mQueueManager.getCurrentMusic() == null) {
-                mQueueManager.setRandomQueue();
+                mQueueManager.setQueueSortMode(mPlayMode);
             }
             handPrepareRequest();
         }
@@ -55,7 +63,7 @@ public class PlaybackManager implements Playback.Callback {
         public void onPlay() {
             Log.e(TAG, "onPlay");
             if (mQueueManager.getCurrentMusic() == null) {
-                mQueueManager.setRandomQueue();
+                mQueueManager.setQueueSortMode(mPlayMode);
             }
             handlePlayRequest();
         }
@@ -79,7 +87,7 @@ public class PlaybackManager implements Playback.Callback {
         public void onPlayFromMediaId(String mediaId, Bundle extras) {
             Log.e(TAG, "onPlayFromMediaId: " + mediaId);
             if (mQueueManager.getCurrentMusic() == null) {
-                mQueueManager.setRandomQueue();
+                mQueueManager.setQueueSortMode(mPlayMode);
             }
             mQueueManager.setQueueFromMusic(mediaId);
             handlePlayRequest();
@@ -91,6 +99,18 @@ public class PlaybackManager implements Playback.Callback {
         public void onSeekTo(long position) {
             LogHelper.d(TAG, "onSeekTo:", position);
             mPlayback.seekTo((int) position);
+        }
+
+        @Override
+        public void onCustomAction(String action, Bundle extras) {
+            switch (action) {
+                case AppConstant.ACTION_PLAY_MODE:
+                    SPUtils.getInstance().put(AppConstant.ACTION_PLAY_MODE, extras.getInt(AppConstant.ACTION_PLAY_MODE));
+                    mQueueManager.setQueueSortMode(extras.getInt(AppConstant.ACTION_PLAY_MODE));
+                    break;
+                default:
+                    break;
+            }
         }
 
         /**

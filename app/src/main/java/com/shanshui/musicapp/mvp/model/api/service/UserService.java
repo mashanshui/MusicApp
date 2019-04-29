@@ -18,6 +18,8 @@ package com.shanshui.musicapp.mvp.model.api.service;
 import com.shanshui.musicapp.mvp.model.bean.ChartsBean;
 import com.shanshui.musicapp.mvp.model.bean.MusicListBean;
 import com.shanshui.musicapp.mvp.model.bean.MusicSourceInfoBean;
+import com.shanshui.musicapp.mvp.model.bean.SearchHotBean;
+import com.shanshui.musicapp.mvp.model.bean.SearchTipBean;
 import com.shanshui.musicapp.mvp.model.bean.SingerBean;
 import com.shanshui.musicapp.mvp.model.bean.SingerCategoryBean;
 import com.shanshui.musicapp.mvp.model.bean.SongSheetBean;
@@ -53,7 +55,9 @@ public interface UserService {
      * @return 获取音乐排行榜下的歌曲列表
      */
     @GET("http://mobilecdngz.kugou.com/api/v3/rank/song?volid=36080&area_code=1&version=9068&plat=0")
-    Observable<Response2<ResponseListObject<MusicListBean>>> getMusicChartsDetail(@Query("rankid") String rankid, @Query("page") int page, @Query("pagesize") int pagesize);
+    Observable<Response2<ResponseListObject<MusicListBean>>> getMusicChartsDetail(@Query("rankid") String rankid
+            , @Query("page") int page
+            , @Query("pagesize") int pagesize);
 
     /**
      * @param page
@@ -66,8 +70,9 @@ public interface UserService {
      * @return 获取歌单列表下的歌曲列表
      */
     @GET("http://mobilecdn.kugou.com/api/v3/special/song?with_cover=1&plat=0&area_code=1&version=9068")
-    Observable<Response2<ResponseListObject<MusicListBean>>> getSongSheetDetail(@Query("specialid") String specialid, @Query("page") int page, @Query("pagesize") int pagesize);
-
+    Observable<Response2<ResponseListObject<MusicListBean>>> getSongSheetDetail(@Query("specialid") String specialid
+            , @Query("page") int page
+            , @Query("pagesize") int pagesize);
 
     /**
      * @return 获取歌手标签
@@ -85,7 +90,9 @@ public interface UserService {
      * @return 获取歌手列表下的歌曲列表
      */
     @GET("http://mobilecdn.kugou.com/api/v3/singer/song?plat=0&sorttype=2&area_code=1&version=9068")
-    Observable<Response2<ResponseListObject<MusicListBean>>> getSingerDetail(@Query("singerid") String singerid, @Query("page") int page, @Query("pagesize") int pagesize);
+    Observable<Response2<ResponseListObject<MusicListBean>>> getSingerDetail(@Query("singerid") String singerid
+            , @Query("page") int page
+            , @Query("pagesize") int pagesize);
 
 
     /**
@@ -94,4 +101,24 @@ public interface UserService {
      */
     @GET("app/i/getSongInfo.php?cmd=playInfo")
     Observable<MusicSourceInfoBean> getMusicInfo(@Query("hash") String hash);
+
+    /**
+     * @return 获取热门搜索
+     */
+    @GET("http://mobilecdn.kugou.com/api/v3/search/hot?format=json&plat=0&count=30")
+    Observable<Response2<ResponseListObject<SearchHotBean>>> getSearchHot();
+
+    /**
+     * @return 获取搜索提示列表
+     */
+    @GET("http://msearchcdn.kugou.com/new/app/i/search.php?cmd=302")
+    Observable<ResponseListObject<SearchTipBean>> getSearchTip(@Query("keyword") String keyword);
+
+    /**
+     * @return 搜索歌曲
+     */
+    @GET("http://mobilecdn.kugou.com/api/v3/search/song?format=json&showtype=1")
+    Observable<Response2<ResponseListObject<MusicListBean>>> getSearchMusic(@Query("keyword") String keyword
+            , @Query("page") int page
+            , @Query("pagesize") int pagesize);
 }

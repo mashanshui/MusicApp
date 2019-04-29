@@ -11,6 +11,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,11 +22,20 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.blankj.utilcode.util.Utils;
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
+import com.jess.arms.base.BaseApplication;
+import com.jess.arms.http.imageloader.glide.GlideArms;
 import com.shanshui.musicapp.R;
+import com.shanshui.musicapp.app.utils.IToast;
+import com.shanshui.musicapp.app.utils.MusicUtil;
 import com.shanshui.musicapp.mvp.AppConstant;
+import com.shanshui.musicapp.mvp.model.api.service.UserService;
+import com.shanshui.musicapp.mvp.model.bean.MusicSourceInfoBean;
 import com.shanshui.musicapp.mvp.music.LogHelper;
+import com.shanshui.musicapp.mvp.music.MusicProviderSource;
 import com.shanshui.musicapp.mvp.ui.activity.music.FullScreenPlayerActivity;
 import com.shanshui.musicapp.mvp.ui.widget.PlayPauseView;
 
@@ -41,6 +51,9 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Unbinder;
 import de.hdodenhof.circleimageview.CircleImageView;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
+import me.jessyan.rxerrorhandler.handler.ErrorHandleSubscriber;
 
 /**
  * @author mashanshui
@@ -191,6 +204,7 @@ public class PlaybackControlsFragment extends Fragment implements SeekBar.OnSeek
                 nextMedia();
                 break;
             case R.id.playQueueIv:
+
                 break;
             default:
                 break;
@@ -260,12 +274,10 @@ public class PlaybackControlsFragment extends Fragment implements SeekBar.OnSeek
         }
         String title = metadata.getString(MediaMetadataCompat.METADATA_KEY_TITLE);
         String artist = metadata.getString(MediaMetadataCompat.METADATA_KEY_ARTIST);
-        String iconUrl = metadata.getString(MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI);
+        String source = metadata.getString(MusicProviderSource.CUSTOM_METADATA_TRACK_SOURCE);
         musicTitle.setText(title);
         musicArtist.setText(artist);
-        Glide.with(getActivity()).load(iconUrl)
-                .apply(new RequestOptions().placeholder(R.drawable.default_cover))
-                .into(ivCover);
+        getMusicInfo(source);
     }
 
     private void playMedia() {
@@ -341,4 +353,23 @@ public class PlaybackControlsFragment extends Fragment implements SeekBar.OnSeek
         mExecutorService.shutdown();
     }
 
+    private void getMusicInfo(String source) {
+        BaseApplication application = (BaseApplication) Utils.getApp();
+        application.getAppComponent().repositoryManager()
+                .obtainRetrofitService(UserService.class)
+                .getMusicInfo(source)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new ErrorHandleSubscriber<MusicSourceInfoBean>(application.getAppComponent().rxErrorHandler()) {
+                    @Override
+                    public void onNext(MusicSourceInfoBean musicSourceInfoBean) {
+                        GlideArms.with(getContext()).load(TextUtils.isEmpty(musicSourceInfoBean.getImgUrl())
+                                ? R.drawable.default_cover
+                                : MusicUtil.getImageUrl(musicSourceInfoBean.getImgUrl(), AppConstant.ONLINE_IMG_SIZE_200))
+                                .placeholder(R.drawable.default_cover)
+                                .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
+                                .into(ivCover);
+                    }
+                });
+    }
 }

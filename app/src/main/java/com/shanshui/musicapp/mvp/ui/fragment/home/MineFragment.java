@@ -15,7 +15,9 @@ import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.View;
 
+import com.blankj.utilcode.util.Utils;
 import com.chad.library.adapter.base.BaseQuickAdapter;
+import com.jess.arms.base.BaseApplication;
 import com.jess.arms.di.component.AppComponent;
 import com.jess.arms.utils.ArmsUtils;
 import com.shanshui.musicapp.R;
@@ -28,7 +30,9 @@ import com.shanshui.musicapp.di.module.MineModule;
 import com.shanshui.musicapp.mvp.AppConstant;
 import com.shanshui.musicapp.mvp.adapter.MusicListAdapter;
 import com.shanshui.musicapp.mvp.contract.MineContract;
+import com.shanshui.musicapp.mvp.model.api.service.UserService;
 import com.shanshui.musicapp.mvp.model.bean.MusicBean;
+import com.shanshui.musicapp.mvp.model.bean.MusicSourceInfoBean;
 import com.shanshui.musicapp.mvp.music.MusicProvider;
 import com.shanshui.musicapp.mvp.music.MusicService;
 import com.shanshui.musicapp.mvp.presenter.MinePresenter;
@@ -44,11 +48,16 @@ import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.Unbinder;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
+import me.jessyan.rxerrorhandler.handler.ErrorHandleSubscriber;
 
 import static com.jess.arms.utils.Preconditions.checkNotNull;
 
 
-public class MineFragment extends BaseMusicLazyFragment<MinePresenter> implements MineContract.View {
+public class MineFragment extends BaseMusicLazyFragment<MinePresenter> implements MineContract.View
+        , BaseQuickAdapter.OnItemClickListener
+        , BaseQuickAdapter.OnItemChildClickListener {
     @Inject
     RxPermissions mRxPermissions;
     @BindView(R.id.recyclerView)
@@ -92,22 +101,25 @@ public class MineFragment extends BaseMusicLazyFragment<MinePresenter> implement
         recyclerView.addItemDecoration(new DividerItemDecoration(context, DividerItemDecoration.VERTICAL));
         musicListAdapter.setEmptyView(R.layout.layout_empty_view, recyclerView);
         recyclerView.setAdapter(musicListAdapter);
-        musicListAdapter.setOnItemClickListener(new BaseQuickAdapter.OnItemClickListener() {
-            @Override
-            public void onItemClick(BaseQuickAdapter adapter, View view, int position) {
-                currentPosition = position;
-                if (TextUtils.equals(AppConstant.PROVIDE_LOCAL_MUSIC, MusicProvider.CURRENT_MUSIC_PROVIDE)) {
-                    //                musicListAdapter.setCurrentPosition(position);
-                    MusicBean bean = (MusicBean) musicListAdapter.getItem(position);
-//                bean.setItemType(MusicBean.MUSIC_ITEM_0);
-//                musicListAdapter.notifyItemChanged(position);
-                    controller.getTransportControls().playFromMediaId(bean.getMetadata().getMediaId(), null);
-                } else {
-                    isPlayOnPrepare = true;
-                    loadMusicToQueue();
-                }
-            }
-        });
+        musicListAdapter.setOnItemClickListener(this::onItemClick);
+        musicListAdapter.setOnItemChildClickListener(this::onItemChildClick);
+    }
+
+    @Override
+    public void onItemChildClick(BaseQuickAdapter adapter, View view, int position) {
+
+    }
+
+    @Override
+    public void onItemClick(BaseQuickAdapter adapter, View view, int position) {
+        currentPosition = position;
+        if (TextUtils.equals(AppConstant.PROVIDE_LOCAL_MUSIC, MusicProvider.CURRENT_MUSIC_PROVIDE)) {
+            MusicBean bean = (MusicBean) musicListAdapter.getItem(position);
+            controller.getTransportControls().playFromMediaId(bean.getMetadata().getMediaId(), null);
+        } else {
+            isPlayOnPrepare = true;
+            loadMusicToQueue();
+        }
     }
 
 
@@ -119,6 +131,27 @@ public class MineFragment extends BaseMusicLazyFragment<MinePresenter> implement
             isPlayOnPrepare = false;
             isFirstConnection = false;
             mPresenter.requestFilePermission();
+        }
+    }
+
+    private final MediaControllerCompat.Callback mCallback = new MediaControllerCompat.Callback() {
+
+        @Override
+        public void onMetadataChanged(MediaMetadataCompat metadata) {
+            if (metadata == null) {
+                return;
+            }
+            updateListStatus(metadata);
+        }
+    };
+
+    private void updateListStatus(MediaMetadataCompat metadata) {
+        if (TextUtils.equals(AppConstant.PROVIDE_LOCAL_MUSIC, MusicProvider.CURRENT_MUSIC_PROVIDE)) {
+            for (int i = 0; i < musicOldList.size(); i++) {
+                if (TextUtils.equals(musicOldList.get(i).getDescription().getMediaId(), metadata.getDescription().getMediaId())) {
+                    musicListAdapter.setCurrentPosition(i);
+                }
+            }
         }
     }
 
@@ -217,7 +250,7 @@ public class MineFragment extends BaseMusicLazyFragment<MinePresenter> implement
             return;
         }
         musicOldList = datas;
-        musicBeanList = MusicUtil.switchMusicToBean(datas);
+        musicBeanList = MusicUtil.switchMusicToBean(datas, MusicListAdapter.MUSIC_ITEM_1);
         musicListAdapter.setNewData(musicBeanList);
         loadMusicToQueue();
     }
@@ -232,6 +265,11 @@ public class MineFragment extends BaseMusicLazyFragment<MinePresenter> implement
     @Override
     protected MediaBrowserCompat.SubscriptionCallback getSubscriptionCallback() {
         return mSubscriptionCallback;
+    }
+
+    @Override
+    protected MediaControllerCompat.Callback getMediaControllerCallback() {
+        return mCallback;
     }
 
     private final MediaBrowserCompat.SubscriptionCallback mSubscriptionCallback =
@@ -258,4 +296,5 @@ public class MineFragment extends BaseMusicLazyFragment<MinePresenter> implement
 
                 }
             };
+
 }

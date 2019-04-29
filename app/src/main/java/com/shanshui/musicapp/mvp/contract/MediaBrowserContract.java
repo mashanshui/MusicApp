@@ -5,6 +5,7 @@ import android.support.v4.media.MediaMetadataCompat;
 import com.jess.arms.mvp.IView;
 import com.jess.arms.mvp.IModel;
 import com.shanshui.musicapp.mvp.model.bean.MusicListBean;
+import com.shanshui.musicapp.mvp.model.bean.MusicSourceInfoBean;
 import com.shanshui.musicapp.mvp.model.entity.Response2;
 import com.shanshui.musicapp.mvp.model.entity.ResponseListObject;
 
@@ -34,9 +35,11 @@ public interface MediaBrowserContract {
 
         int getLength();
 
-        void handleSuccess(List<MediaMetadataCompat> musicList);
+        void handleSuccess(List<MediaMetadataCompat> musicList, int musicType);
 
         void handleFailure();
+
+        void updateMusicInfo(MusicSourceInfoBean musicSourceInfoBean);
     }
 
     //Model层定义接口,外部只需关心Model返回的数据,无需关心内部细节,即是否使用缓存
@@ -46,5 +49,9 @@ public interface MediaBrowserContract {
         Observable<Response2<ResponseListObject<MusicListBean>>> getSongSheetMusicList(String specialId, int page, int length);
 
         Observable<Response2<ResponseListObject<MusicListBean>>> getSingerMusicList(String singerId, int page, int length);
+
+        Observable<Response2<ResponseListObject<MusicListBean>>> getSearchMusicList(String keyword, int page, int length);
+
+        Observable<MusicSourceInfoBean> getMusicInfo(String source);
     }
 }

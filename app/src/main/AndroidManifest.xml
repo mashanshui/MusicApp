@@ -3,16 +3,16 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.shanshui.musicapp">
 
-    <uses-permission android:name="android.permission.INTERNET" /> <!-- 需要申请 -->
+    <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
-    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" /> <!-- 需要申请 -->
-    <uses-permission android:name="android.permission.READ_PHONE_STATE" /> <!-- 用于进行网络定位  需要申请 -->
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" /> <!-- 用于访问GPS定位 -->
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" /> <!-- 用于申请调用A-GPS模块 -->
-    <uses-permission android:name="android.permission.ACCESS_LOCATION_EXTRA_COMMANDS" /> <!-- 用于申请获取蓝牙信息进行室内定位 -->
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_LOCATION_EXTRA_COMMANDS" />
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
 
@@ -25,22 +25,22 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
-        <activity android:name=".mvp.ui.activity.music.SearchMusicActivity"></activity>
+        <activity android:name=".mvp.ui.activity.WebBrowserActivity"></activity>
+        <activity
+            android:name=".mvp.ui.activity.music.SearchMusicActivity"
+            android:windowSoftInputMode="adjustPan" />
         <activity android:name=".mvp.ui.activity.singer.SingerDetailActivity" />
         <activity android:name=".mvp.ui.activity.songsheet.SongSheetDetailActivity" />
 
         <meta-data
             android:name="android.max_aspect"
-            android:value="2.4" />
-        <!-- arms配置 -->
+            android:value="2.4" /> <!-- arms配置 -->
         <meta-data
             android:name="com.shanshui.musicapp.app.GlobalConfiguration"
-            android:value="ConfigModule" />
-        <!-- 屏幕适配 今日头条方案 以宽为维度适配 -->
+            android:value="ConfigModule" /> <!-- 屏幕适配 今日头条方案 以宽为维度适配 -->
         <meta-data
             android:name="design_width_in_dp"
-            android:value="360" />
-        <!-- 高德地图 -->
+            android:value="360" /> <!-- 高德地图 -->
         <meta-data
             android:name="com.amap.api.v2.apikey"
             android:value="0fc9bcecdd9ab53b3ad93d626897edbe" />
@@ -69,8 +69,7 @@
             android:screenOrientation="portrait" />
         <activity
             android:name=".mvp.ui.activity.user.ForgetPasswordActivity"
-            android:screenOrientation="portrait" />
-        <!-- 音乐播放服务 -->
+            android:screenOrientation="portrait" /> <!-- 音乐播放服务 -->
         <service
             android:name=".mvp.music.MusicService"
             android:enabled="true"

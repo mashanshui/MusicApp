@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <color name="colorPrimary">#00ba90</color>
+    <color name="colorPrimary">#00BA90</color>
     <color name="colorPrimaryDark">#008c6c</color>
     <color name="colorPrimaryLight">#94DCFE</color>
     <color name="colorAccent">#13B111</color>
@@ -12,7 +12,8 @@
     <color name="myColorPrimaryLight">#94DCFE</color>
     <color name="myColorAccent">#FF4081</color>
 
-    <color name="white">#ffffff</color>
+    <color name="white">#FFFFFF</color>
+    <color name="white_more">#FEFEFE</color>
     <color name="black">#000000</color>
     <!--material design 基础色-->
     <color name="red">#e51c23</color>

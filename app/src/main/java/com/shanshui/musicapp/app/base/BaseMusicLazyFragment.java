@@ -152,7 +152,7 @@ public abstract class BaseMusicLazyFragment<P extends IPresenter> extends LazyFr
         }
         MediaControllerCompat controller = MediaControllerCompat.getMediaController(getActivity());
         if (controller != null) {
-            controller.unregisterCallback(mMediaControllerCallback);
+            controller.unregisterCallback(getMediaControllerCallback() == null ? mMediaControllerCallback : getMediaControllerCallback());
         }
     }
 
@@ -190,12 +190,14 @@ public abstract class BaseMusicLazyFragment<P extends IPresenter> extends LazyFr
         // Add MediaController callback so we can redraw the list when metadata changes:
         MediaControllerCompat controller = MediaControllerCompat.getMediaController(getActivity());
         if (controller != null) {
-            controller.registerCallback(mMediaControllerCallback);
+            controller.registerCallback(getMediaControllerCallback() == null ? mMediaControllerCallback : getMediaControllerCallback());
             onMediaControllerConnected();
         }
     }
 
     protected abstract MediaBrowserCompat.SubscriptionCallback getSubscriptionCallback();
+
+    protected abstract MediaControllerCompat.Callback getMediaControllerCallback();
 
     protected abstract void onMediaControllerConnected();
 

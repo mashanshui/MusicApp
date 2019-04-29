@@ -89,6 +89,20 @@ public class MusicProvider {
     }
 
     /**
+     * 获取 存储了所有音乐的列表 正常顺序顺序的迭代器
+     */
+    public Iterable<MediaMetadataCompat> getOrderMusicIterable() {
+        if (mCurrentState != State.INITIALIZED) {
+            return Collections.emptyList();
+        }
+        List<MediaMetadataCompat> shuffled = new ArrayList<>(mMusicListById.size());
+        for (MutableMediaMetadata mutableMetadata : mMusicListById.values()) {
+            shuffled.add(mutableMetadata.metadata);
+        }
+        return shuffled;
+    }
+
+    /**
      * Very basic implementation of a search that filter music tracks with title containing
      * the given query.
      */
@@ -142,6 +156,13 @@ public class MusicProvider {
      */
     public MediaMetadataCompat getMusic(String musicId) {
         return mMusicListById.containsKey(musicId) ? mMusicListById.get(musicId).metadata : null;
+    }
+
+    /**
+     * 重新设置当前musicId的信息
+     */
+    public void setMusic(String musicId, MediaMetadataCompat item) {
+        mMusicListById.put(musicId, new MutableMediaMetadata(musicId, item));
     }
 
     public boolean isInitialized() {

@@ -20,7 +20,7 @@ public class ResponseListObject<T> {
 
     private int timestamp;
     private int total;
-    @SerializedName(value = "info", alternate = {"list"})
+    @SerializedName(value = "info", alternate = {"list","data"})
     private List<T> info;
 
     public int getTimestamp() {

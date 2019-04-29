@@ -9,14 +9,19 @@ import android.support.v4.app.Fragment;
 import android.support.v4.media.MediaBrowserCompat;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaControllerCompat;
+import android.support.v4.media.session.PlaybackStateCompat;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.View;
+import android.widget.ImageView;
 
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.request.RequestOptions;
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.jess.arms.di.component.AppComponent;
+import com.jess.arms.http.imageloader.glide.GlideArms;
 import com.jess.arms.utils.ArmsUtils;
 import com.scwang.smartrefresh.layout.SmartRefreshLayout;
 import com.scwang.smartrefresh.layout.api.RefreshLayout;
@@ -33,8 +38,9 @@ import com.shanshui.musicapp.mvp.AppConstant;
 import com.shanshui.musicapp.mvp.adapter.MusicListAdapter;
 import com.shanshui.musicapp.mvp.contract.MediaBrowserContract;
 import com.shanshui.musicapp.mvp.model.bean.MusicBean;
+import com.shanshui.musicapp.mvp.model.bean.MusicSourceInfoBean;
 import com.shanshui.musicapp.mvp.music.MusicProvider;
-import com.shanshui.musicapp.mvp.music.MusicService;
+import com.shanshui.musicapp.mvp.music.MusicProviderSource;
 import com.shanshui.musicapp.mvp.presenter.MediaBrowserPresenter;
 
 import org.simple.eventbus.EventBus;
@@ -55,10 +61,13 @@ import static com.jess.arms.utils.Preconditions.checkNotNull;
  */
 public class MediaBrowserFragment extends BaseMusicLazyFragment<MediaBrowserPresenter> implements MediaBrowserContract.View
         , OnRefreshListener
-        , OnLoadMoreListener {
+        , OnLoadMoreListener
+        , BaseQuickAdapter.OnItemClickListener
+        , BaseQuickAdapter.OnItemChildClickListener {
     public static final int MUSIC_TYPE_CHARTS = 0;
     public static final int MUSIC_TYPE_SONG_SHEET = 1;
     public static final int MUSIC_TYPE_SINGER = 2;
+    public static final int MUSIC_TYPE_SEARCH = 3;
     private static final String MUSIC_TYPE = "musicType";
     private static final String MUSIC_MESSAGE = "musicMessage";
     @BindView(R.id.recyclerView)
@@ -117,28 +126,64 @@ public class MediaBrowserFragment extends BaseMusicLazyFragment<MediaBrowserPres
     }
 
     @Override
+    protected MediaControllerCompat.Callback getMediaControllerCallback() {
+        return mCallback;
+    }
+
+    @Override
     public void initData(@Nullable Bundle savedInstanceState) {
         initRefresh();
         musicListAdapter = new MusicListAdapter(null);
         recyclerView.setLayoutManager(new LinearLayoutManager(context));
         recyclerView.addItemDecoration(new DividerItemDecoration(context, DividerItemDecoration.VERTICAL));
         recyclerView.setAdapter(musicListAdapter);
-        musicListAdapter.setOnItemClickListener(new BaseQuickAdapter.OnItemClickListener() {
-            @Override
-            public void onItemClick(BaseQuickAdapter adapter, View view, int position) {
-                currentPosition = position;
-                if (TextUtils.equals(musicMessage, MusicProvider.CURRENT_MUSIC_PROVIDE)) {
-                    //                musicListAdapter.setCurrentPosition(position);
-                    MusicBean bean = (MusicBean) musicListAdapter.getItem(position);
-//                bean.setItemType(MusicBean.MUSIC_ITEM_0);
-//                musicListAdapter.notifyItemChanged(position);
-                    controller.getTransportControls().playFromMediaId(bean.getMetadata().getMediaId(), null);
-                } else {
-                    loadMusicToQueue();
+        musicListAdapter.setOnItemClickListener(this::onItemClick);
+        musicListAdapter.setOnItemChildClickListener(this::onItemChildClick);
+        loadData();
+    }
+
+
+    @Override
+    public void onItemChildClick(BaseQuickAdapter adapter, View view, int position) {
+        switch (view.getId()) {
+            case R.id.iv_download:
+                break;
+            default:
+                break;
+        }
+    }
+
+    @Override
+    public void onItemClick(BaseQuickAdapter adapter, View view, int position) {
+        currentPosition = position;
+        if (TextUtils.equals(musicMessage, MusicProvider.CURRENT_MUSIC_PROVIDE)) {
+            MusicBean bean = (MusicBean) musicListAdapter.getItem(position);
+            controller.getTransportControls().playFromMediaId(bean.getMetadata().getMediaId(), null);
+        } else {
+            loadMusicToQueue();
+        }
+    }
+
+    private final MediaControllerCompat.Callback mCallback = new MediaControllerCompat.Callback() {
+
+        @Override
+        public void onMetadataChanged(MediaMetadataCompat metadata) {
+            if (metadata == null) {
+                return;
+            }
+            updateListStatus(metadata);
+        }
+    };
+
+    private void updateListStatus(MediaMetadataCompat metadata) {
+        if (TextUtils.equals(musicMessage, MusicProvider.CURRENT_MUSIC_PROVIDE)) {
+            for (int i = 0; i < musicOldList.size(); i++) {
+                if (TextUtils.equals(musicOldList.get(i).getDescription().getMediaId(), metadata.getDescription().getMediaId())) {
+                    musicListAdapter.setCurrentPosition(i);
+                    mPresenter.getMusicInfo(musicOldList.get(i).getString(MusicProviderSource.CUSTOM_METADATA_TRACK_SOURCE));
                 }
             }
-        });
-        loadData();
+        }
     }
 
     /**
@@ -289,12 +334,12 @@ public class MediaBrowserFragment extends BaseMusicLazyFragment<MediaBrowserPres
     }
 
     @Override
-    public void handleSuccess(List<MediaMetadataCompat> datas) {
+    public void handleSuccess(List<MediaMetadataCompat> datas, int musicType) {
         if (datas == null) {
             return;
         }
         musicOldList = datas;
-        musicBeanList = MusicUtil.switchMusicToBean(datas);
+        musicBeanList = MusicUtil.switchMusicToBean(datas, musicType);
         //下拉刷新
         if (refreshLayout.getState() == RefreshState.Refreshing) {
             musicListAdapter.setNewData(musicBeanList);
@@ -324,6 +369,15 @@ public class MediaBrowserFragment extends BaseMusicLazyFragment<MediaBrowserPres
             page--;
         }
         refreshOrLoadmoreFinish();
+    }
+
+    @Override
+    public void updateMusicInfo(MusicSourceInfoBean musicSourceInfoBean) {
+        ImageView imageView = (ImageView) musicListAdapter.getViewByPosition(recyclerView, musicListAdapter.getCurrentPosition(), R.id.iv_cover);
+        GlideArms.with(getContext()).load(MusicUtil.getImageUrl(musicSourceInfoBean.getImgUrl(), AppConstant.ONLINE_IMG_SIZE_200))
+                .placeholder(R.drawable.ic_singer_default)
+                .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
+                .into(imageView);
     }
 
 }

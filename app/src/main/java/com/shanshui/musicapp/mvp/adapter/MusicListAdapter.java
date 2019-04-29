@@ -20,6 +20,7 @@ import java.util.List;
 public class MusicListAdapter extends BaseQuickAdapter<MusicBean, BaseViewHolder> {
     public static final int MUSIC_ITEM_0 = 0;
     public static final int MUSIC_ITEM_1 = 1;
+    public static final int MUSIC_ITEM_2 = 2;
     private MusicListPositionMessageBean mLastPosition = null;
     private int mCurrentPosition = 0;
 
@@ -32,22 +33,27 @@ public class MusicListAdapter extends BaseQuickAdapter<MusicBean, BaseViewHolder
             }
         });
         getMultiTypeDelegate()
-                .registerItemType(MusicListAdapter.MUSIC_ITEM_0, R.layout.recycler_music_item0)
-                .registerItemType(MusicListAdapter.MUSIC_ITEM_1, R.layout.recycler_music_item1);
+                .registerItemType(MUSIC_ITEM_0, R.layout.recycler_music_item0)
+                .registerItemType(MUSIC_ITEM_1, R.layout.recycler_music_item1)
+                .registerItemType(MUSIC_ITEM_2, R.layout.recycler_music_item2);
     }
 
     @Override
     protected void convert(BaseViewHolder helper, MusicBean item) {
         MediaDescriptionCompat mediaDescription = item.getMetadata();
         switch (helper.getItemViewType()) {
-            case MusicListAdapter.MUSIC_ITEM_0:
+            case MUSIC_ITEM_0:
                 helper.setText(R.id.tv_artist, mediaDescription.getSubtitle())
                         .setText(R.id.tv_song_name, mediaDescription.getTitle())
                         .addOnClickListener(R.id.iv_download);
                 break;
-            case MusicListAdapter.MUSIC_ITEM_1:
+            case MUSIC_ITEM_1:
                 helper.setText(R.id.tv_music_name, mediaDescription.getTitle())
                         .setText(R.id.tv_music_singer, mediaDescription.getSubtitle());
+                break;
+            case MUSIC_ITEM_2:
+                helper.setText(R.id.tv_artist, mediaDescription.getSubtitle())
+                        .setText(R.id.tv_song_name, mediaDescription.getTitle());
                 break;
             default:
                 break;
@@ -61,7 +67,7 @@ public class MusicListAdapter extends BaseQuickAdapter<MusicBean, BaseViewHolder
     public void setCurrentPosition(int mCurrentPosition) {
         if (mLastPosition != null) {
             getItem(mLastPosition.getPosition()).setItemType(mLastPosition.getItemType());
-//            notifyItemChanged(mLastPosition.getPosition());
+            notifyItemChanged(mLastPosition.getPosition());
         }
         this.mCurrentPosition = mCurrentPosition;
         MusicBean musicBean = getItem(mCurrentPosition);
@@ -71,9 +77,8 @@ public class MusicListAdapter extends BaseQuickAdapter<MusicBean, BaseViewHolder
         messageBean.setPosition(mCurrentPosition);
         mLastPosition = messageBean;
 
-        musicBean.setItemType(MusicListAdapter.MUSIC_ITEM_0);
+        musicBean.setItemType(MusicListAdapter.MUSIC_ITEM_2);
         getData().set(mCurrentPosition, musicBean);
-//        notifyItemChanged(mCurrentPosition);
-        notifyDataSetChanged();
+        notifyItemChanged(mCurrentPosition);
     }
 }

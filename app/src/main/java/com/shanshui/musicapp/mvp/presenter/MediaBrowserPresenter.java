@@ -2,11 +2,15 @@ package com.shanshui.musicapp.mvp.presenter;
 
 import android.app.Application;
 
+import com.blankj.utilcode.util.Utils;
+import com.jess.arms.base.BaseApplication;
 import com.jess.arms.integration.AppManager;
 import com.jess.arms.di.scope.FragmentScope;
 import com.jess.arms.mvp.BasePresenter;
 import com.jess.arms.http.imageloader.ImageLoader;
 
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 import me.jessyan.rxerrorhandler.core.RxErrorHandler;
 import me.jessyan.rxerrorhandler.handler.ErrorHandleSubscriber;
 
@@ -14,14 +18,18 @@ import javax.inject.Inject;
 
 import com.shanshui.musicapp.app.utils.MusicUtil;
 import com.shanshui.musicapp.app.utils.RxUtils;
+import com.shanshui.musicapp.mvp.adapter.MusicListAdapter;
 import com.shanshui.musicapp.mvp.contract.MediaBrowserContract;
+import com.shanshui.musicapp.mvp.model.api.service.UserService;
 import com.shanshui.musicapp.mvp.model.bean.MusicListBean;
+import com.shanshui.musicapp.mvp.model.bean.MusicSourceInfoBean;
 import com.shanshui.musicapp.mvp.model.entity.Response2;
 import com.shanshui.musicapp.mvp.model.entity.ResponseListObject;
 
 import java.util.List;
 
 import static com.shanshui.musicapp.mvp.ui.fragment.music.MediaBrowserFragment.MUSIC_TYPE_CHARTS;
+import static com.shanshui.musicapp.mvp.ui.fragment.music.MediaBrowserFragment.MUSIC_TYPE_SEARCH;
 import static com.shanshui.musicapp.mvp.ui.fragment.music.MediaBrowserFragment.MUSIC_TYPE_SINGER;
 import static com.shanshui.musicapp.mvp.ui.fragment.music.MediaBrowserFragment.MUSIC_TYPE_SONG_SHEET;
 
@@ -61,7 +69,27 @@ public class MediaBrowserPresenter extends BasePresenter<MediaBrowserContract.Mo
             loadMusicTypeSongSheet(musicMessage);
         } else if (musicType == MUSIC_TYPE_SINGER) {
             loadMusicTypeSinger(musicMessage);
+        } else if (musicType == MUSIC_TYPE_SEARCH) {
+            loadMusicTypeSearch(musicMessage);
         }
+    }
+
+    private void loadMusicTypeSearch(String musicMessage) {
+        mModel.getSearchMusicList(musicMessage, mRootView.getPage(), mRootView.getLength())
+                .compose(RxUtils.applySchedulers(mRootView))
+                .subscribe(new ErrorHandleSubscriber<Response2<ResponseListObject<MusicListBean>>>(mErrorHandler) {
+                    @Override
+                    public void onNext(Response2<ResponseListObject<MusicListBean>> data) {
+                        List<MusicListBean> musicListBeanList = data.getData().getInfo();
+                        mRootView.handleSuccess(MusicUtil.switchNetMusicToMetadata(musicListBeanList), MusicListAdapter.MUSIC_ITEM_0);
+                    }
+
+                    @Override
+                    public void onError(Throwable t) {
+                        super.onError(t);
+                        mRootView.handleFailure();
+                    }
+                });
     }
 
     private void loadMusicTypeSinger(String musicMessage) {
@@ -71,7 +99,7 @@ public class MediaBrowserPresenter extends BasePresenter<MediaBrowserContract.Mo
                     @Override
                     public void onNext(Response2<ResponseListObject<MusicListBean>> data) {
                         List<MusicListBean> musicListBeanList = data.getData().getInfo();
-                        mRootView.handleSuccess(MusicUtil.switchNetMusicToMetadata(musicListBeanList));
+                        mRootView.handleSuccess(MusicUtil.switchNetMusicToMetadata(musicListBeanList), MusicListAdapter.MUSIC_ITEM_1);
                     }
 
                     @Override
@@ -89,7 +117,7 @@ public class MediaBrowserPresenter extends BasePresenter<MediaBrowserContract.Mo
                     @Override
                     public void onNext(Response2<ResponseListObject<MusicListBean>> data) {
                         List<MusicListBean> musicListBeanList = data.getData().getInfo();
-                        mRootView.handleSuccess(MusicUtil.switchNetMusicToMetadata(musicListBeanList));
+                        mRootView.handleSuccess(MusicUtil.switchNetMusicToMetadata(musicListBeanList), MusicListAdapter.MUSIC_ITEM_1);
                     }
 
                     @Override
@@ -107,13 +135,27 @@ public class MediaBrowserPresenter extends BasePresenter<MediaBrowserContract.Mo
                     @Override
                     public void onNext(Response2<ResponseListObject<MusicListBean>> data) {
                         List<MusicListBean> musicListBeanList = data.getData().getInfo();
-                        mRootView.handleSuccess(MusicUtil.switchNetMusicToMetadata(musicListBeanList));
+                        mRootView.handleSuccess(MusicUtil.switchNetMusicToMetadata(musicListBeanList), MusicListAdapter.MUSIC_ITEM_1);
                     }
 
                     @Override
                     public void onError(Throwable t) {
                         super.onError(t);
                         mRootView.handleFailure();
+                    }
+                });
+    }
+
+    /**
+     * @param source 获取音乐详情（主要使用图片信息）
+     */
+    public void getMusicInfo(String source) {
+        mModel.getMusicInfo(source)
+                .compose(RxUtils.applySchedulers(mRootView))
+                .subscribe(new ErrorHandleSubscriber<MusicSourceInfoBean>(mErrorHandler) {
+                    @Override
+                    public void onNext(MusicSourceInfoBean musicSourceInfoBean) {
+                        mRootView.updateMusicInfo(musicSourceInfoBean);
                     }
                 });
     }

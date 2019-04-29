@@ -17,6 +17,7 @@ import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -28,17 +29,26 @@ import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import com.blankj.utilcode.util.Utils;
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.jaeger.library.StatusBarUtil;
 import com.jess.arms.base.BaseActivity;
+import com.jess.arms.base.BaseApplication;
 import com.jess.arms.di.component.AppComponent;
+import com.jess.arms.http.imageloader.glide.GlideArms;
 import com.jess.arms.utils.ArmsUtils;
 import com.shanshui.musicapp.R;
+import com.shanshui.musicapp.app.utils.MusicUtil;
 import com.shanshui.musicapp.di.component.DaggerFullScreenPlayerComponent;
 import com.shanshui.musicapp.di.module.FullScreenPlayerModule;
+import com.shanshui.musicapp.mvp.AppConstant;
 import com.shanshui.musicapp.mvp.adapter.ViewPageViewAdapter;
 import com.shanshui.musicapp.mvp.contract.FullScreenPlayerContract;
+import com.shanshui.musicapp.mvp.model.api.service.UserService;
+import com.shanshui.musicapp.mvp.model.bean.MusicSourceInfoBean;
 import com.shanshui.musicapp.mvp.music.LogHelper;
+import com.shanshui.musicapp.mvp.music.MusicProviderSource;
 import com.shanshui.musicapp.mvp.music.MusicService;
 import com.shanshui.musicapp.mvp.presenter.FullScreenPlayerPresenter;
 import com.shanshui.musicapp.mvp.ui.widget.MultiTouchViewPager;
@@ -56,6 +66,9 @@ import java.util.concurrent.TimeUnit;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
+import me.jessyan.rxerrorhandler.handler.ErrorHandleSubscriber;
 
 import static com.jess.arms.utils.Preconditions.checkNotNull;
 
@@ -181,7 +194,7 @@ public class FullScreenPlayerActivity extends BaseActivity<FullScreenPlayerPrese
     }
 
     private void initAlbumPic() {
-        ImageView imageView = coverView.findViewById(R.id.civ_cover);
+        ImageView imageView = coverView.findViewById(R.id.iv_cover);
         if (imageView == null) {
             return;
         }
@@ -194,6 +207,7 @@ public class FullScreenPlayerActivity extends BaseActivity<FullScreenPlayerPrese
     private void initViewPager() {
         List<View> viewList = new ArrayList<>();
         coverView = LayoutInflater.from(this).inflate(R.layout.frag_player_coverview, viewPager, false);
+        coverView.findViewById(R.id.iv_cover);
 //        lyricView = LayoutInflater.from(this).inflate(R.layout.frag_player_lrcview, viewPager, false);
         viewList.add(coverView);
         ViewPageViewAdapter adapter = new ViewPageViewAdapter(viewList);
@@ -218,11 +232,14 @@ public class FullScreenPlayerActivity extends BaseActivity<FullScreenPlayerPrese
     }
 
     private void setPlayingBitmap(String url) {
-        ImageView imageView = coverView.findViewById(R.id.civ_cover);
+        ImageView imageView = coverView.findViewById(R.id.iv_cover);
         if (imageView == null) {
             return;
         }
-        Glide.with(FullScreenPlayerActivity.this).load(url).into(imageView);
+        GlideArms.with(FullScreenPlayerActivity.this).load(MusicUtil.getImageUrl(url, AppConstant.ONLINE_IMG_SIZE_480))
+                .placeholder(R.drawable.default_cover)
+                .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
+                .into(imageView);
     }
 
     @Override
@@ -448,9 +465,10 @@ public class FullScreenPlayerActivity extends BaseActivity<FullScreenPlayerPrese
         }
         String title = metadata.getString(MediaMetadataCompat.METADATA_KEY_TITLE);
         String artist = metadata.getString(MediaMetadataCompat.METADATA_KEY_ARTIST);
-        String iconUrl = metadata.getString(MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI);
+        String source = metadata.getString(MusicProviderSource.CUSTOM_METADATA_TRACK_SOURCE);
         titleIv.setText(title);
         subTitleTv.setText(artist);
+        getMusicInfo(source);
     }
 
     private void updateDuration(MediaMetadataCompat metadata) {
@@ -489,5 +507,23 @@ public class FullScreenPlayerActivity extends BaseActivity<FullScreenPlayerPrese
         if (controller != null) {
             controller.getTransportControls().skipToPrevious();
         }
+    }
+
+    private void getMusicInfo(String source) {
+        BaseApplication application = (BaseApplication) Utils.getApp();
+        application.getAppComponent().repositoryManager()
+                .obtainRetrofitService(UserService.class)
+                .getMusicInfo(source)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new ErrorHandleSubscriber<MusicSourceInfoBean>(application.getAppComponent().rxErrorHandler()) {
+                    @Override
+                    public void onNext(MusicSourceInfoBean musicSourceInfoBean) {
+                        if (TextUtils.isEmpty(musicSourceInfoBean.getImgUrl())) {
+                            return;
+                        }
+                        setPlayingBitmap(musicSourceInfoBean.getImgUrl());
+                    }
+                });
     }
 }

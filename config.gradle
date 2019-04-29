@@ -19,7 +19,7 @@ ext {
             rxlifecycle2SdkVersion       : "2.2.1",
             espressoSdkVersion           : "3.0.1",
             canarySdkVersion             : "1.6.2",
-            qmui                         : "1.1.5",
+            qmui                         : "1.2.0",
             BaseRecyclerViewAdapterHelper: "2.9.38"
     ]
 

@@ -1,6 +1,7 @@
 package com.shanshui.musicapp.app.utils;
 
 import android.support.v4.media.MediaMetadataCompat;
+import android.text.TextUtils;
 
 import com.shanshui.musicapp.mvp.adapter.MusicListAdapter;
 import com.shanshui.musicapp.mvp.model.bean.LocalMusicBean;
@@ -107,7 +108,7 @@ public class MusicUtil {
                 .putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_SUBTITLE, artist)
                 .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, durationMs)
 //                .putString(MediaMetadataCompat.METADATA_KEY_GENRE, genre)
-                .putString(MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI, iconUrl)
+                .putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_ICON_URI, iconUrl)
                 .putString(MediaMetadataCompat.METADATA_KEY_TITLE, title)
 //                .putLong(MediaMetadataCompat.METADATA_KEY_TRACK_NUMBER, trackNumber)
 //                .putLong(MediaMetadataCompat.METADATA_KEY_NUM_TRACKS, totalTrackCount)
@@ -128,6 +129,9 @@ public class MusicUtil {
      * @return 获取歌手名字
      */
     public static String getSingerName(String filename, String remark) {
+        if (TextUtils.isEmpty(remark)) {
+            return filename.substring(0, filename.lastIndexOf("-"));
+        }
         return filename.substring(0, filename.lastIndexOf("-") + 2) + remark;
     }
 
@@ -143,11 +147,11 @@ public class MusicUtil {
      * @param oldMusicList
      * @return 将MediaMetadataCompat格式的数据转化为MusicBean
      */
-    public static List<MusicBean> switchMusicToBean(List<MediaMetadataCompat> oldMusicList) {
+    public static List<MusicBean> switchMusicToBean(List<MediaMetadataCompat> oldMusicList, int musicType) {
         List<MusicBean> newMusicList = new ArrayList<>();
         for (int i = 0; i < oldMusicList.size(); i++) {
             MediaMetadataCompat bean = oldMusicList.get(i);
-            MusicBean musicBean = new MusicBean(MusicListAdapter.MUSIC_ITEM_1);
+            MusicBean musicBean = new MusicBean(musicType);
             musicBean.setMetadata(bean.getDescription());
             newMusicList.add(musicBean);
         }
